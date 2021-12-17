@@ -1,0 +1,75 @@
+#server:
+#  port: 8888
+#spring:
+#  application:
+#    name: zuul_gateway
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#    ip-address: 42.192.5.60
+#    lease-renewal-interval-in-seconds: 5
+#    lease-expiration-duration-in-seconds: 20
+#    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+#  client:
+#    serviceUrl:
+#      defaultZone: http://cxia:cxia@42.192.5.60:8761/eureka/
+#    registry-fetch-interval-seconds: 10
+## swagger开启开关
+#swagger:
+#  enabled: true
+
+
+server:
+  port: 8888
+
+spring:
+  application:
+    name: spring-cloud-study-zuuls
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: localhost
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 20
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://cxia:cxia@localhost:8761/eureka/
+    registry-fetch-interval-seconds: 10
+zuul:
+  #需要忽略的头部信息，不在传播到其他服务
+  sensitive-headers: Access-Control-Allow-Origin
+  ignored-headers: Access-Control-Allow-Origin,H-APP-Id,Token,APPToken
+  routes:
+    jx:
+      path: /jx/**
+      url:  http://localhost/jx/
+    service-example:
+      path: /core/**
+      serviceId: service-example2
+      stripPrefix: false
+
+ribbon:
+  eureka:
+    enabled: false
+  ConnectTimeout: 250 # 连接超时时间(ms)[默认1秒]
+  ReadTimeout: 2000 # 通信超时时间(ms)[默认1秒]
+  OkToRetryOnAllOperations: true # 是否对所有操作重试
+  MaxAutoRetriesNextServer: 1 # 同一服务不同实例的重试次数[默认是1次]
+  MaxAutoRetries: 0 # 同一实例的重试次数[默认是0次]
+
+service-example2:
+  ribbon:
+    listOfServers: http://localhost:8787,http://localhost:8788
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000  #设置API网关中路由转发请求的HystrixCommand执行超时时间
+
+
+swagger:
+  enabled: true
